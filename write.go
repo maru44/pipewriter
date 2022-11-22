@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/csv"
 	"io"
-	"log"
 	"sync"
 	"time"
 )
@@ -89,11 +88,6 @@ func WriteCSV[T, P any](ctx context.Context, dir, name string, w CsvWriter[T, P]
 		if !testMode {
 			if _, err := pw.Write([]byte{0xEF, 0xBB, 0xBF}); err != nil {
 				ch <- err
-				if err := pw.CloseWithError(err); err != nil {
-					log.Println(err)
-					cancel()
-				}
-				return
 			}
 		}
 
