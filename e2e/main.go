@@ -94,7 +94,9 @@ func (t *testWriter) Upload(ctx context.Context, dir, name string, file io.Reade
 	defer f.Close()
 
 	buf := new(bytes.Buffer)
-	buf.ReadFrom(file)
+	if _, err := buf.ReadFrom(file); err != nil {
+		return err
+	}
 	if _, err := f.Write(buf.Bytes()); err != nil {
 		return err
 	}
