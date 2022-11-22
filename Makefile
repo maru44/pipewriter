@@ -1,6 +1,6 @@
-.PHONY: test e2e
+.PHONY: test testfile
 
-e2e:
+testfile:
 	@cd e2e && \
 	go run main.go && \
 	cd ..
