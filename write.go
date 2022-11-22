@@ -15,13 +15,13 @@ func Write[T, P any](ctx context.Context, dir, name string, w PipeWriter[T, P], 
 	defer pw.Close()
 
 	var cnt int
-	var loopErr error
+	ch := make(chan error)
 	go func() {
 		hasNext := true
 		for hasNext {
 			values, pg, next, err := w.ListWithPagination(ctx, page)
 			if err != nil {
-				loopErr = err
+				ch <- err
 				if err := pw.CloseWithError(err); err != nil {
 					log.Println(err)
 					cancel()
@@ -31,7 +31,7 @@ func Write[T, P any](ctx context.Context, dir, name string, w PipeWriter[T, P], 
 
 			for _, v := range values {
 				if _, err := pw.Write(w.Data(ctx, v)); err != nil {
-					loopErr = err
+					ch <- err
 					if err := pw.CloseWithError(err); err != nil {
 						log.Println(err)
 						cancel()
@@ -46,13 +46,19 @@ func Write[T, P any](ctx context.Context, dir, name string, w PipeWriter[T, P], 
 		}
 
 		if err := pw.Close(); err != nil {
-			loopErr = err
+			ch <- err
 			log.Println(err)
 			cancel()
 		}
+		ch <- nil
 	}()
-	if loopErr != nil {
-		return 0, "", loopErr
+
+	select {
+	case err := <-ch:
+		if err != nil {
+			return 0, "", err
+		}
+		break
 	}
 
 	if w.OverWriteFileName() != nil {
@@ -74,10 +80,10 @@ func WriteCSV[T, P any](ctx context.Context, dir, name string, w CsvWriter[T, P]
 	defer pw.Close()
 
 	var cnt int
-	var loopErr error
+	ch := make(chan error)
 	go func() {
 		if _, err := pw.Write([]byte{0xEF, 0xBB, 0xBF}); err != nil {
-			loopErr = err
+			ch <- err
 			if err := pw.CloseWithError(err); err != nil {
 				log.Println(err)
 				cancel()
@@ -87,7 +93,7 @@ func WriteCSV[T, P any](ctx context.Context, dir, name string, w CsvWriter[T, P]
 
 		cw := csv.NewWriter(pw)
 		if err := cw.Write(w.HeaderRow(ctx)); err != nil {
-			loopErr = err
+			ch <- err
 			if err := pw.CloseWithError(err); err != nil {
 				log.Println(err)
 				cancel()
@@ -100,7 +106,7 @@ func WriteCSV[T, P any](ctx context.Context, dir, name string, w CsvWriter[T, P]
 		for hasNext {
 			values, pg, next, err := w.ListWithPagination(ctx, page)
 			if err != nil {
-				loopErr = err
+				ch <- err
 				if err := pw.CloseWithError(err); err != nil {
 					log.Println(err)
 					cancel()
@@ -110,7 +116,7 @@ func WriteCSV[T, P any](ctx context.Context, dir, name string, w CsvWriter[T, P]
 
 			for _, v := range values {
 				if err := cw.Write(w.ValueRow(ctx, v)); err != nil {
-					loopErr = err
+					ch <- err
 					if err := pw.CloseWithError(err); err != nil {
 						log.Println(err)
 						cancel()
@@ -126,13 +132,18 @@ func WriteCSV[T, P any](ctx context.Context, dir, name string, w CsvWriter[T, P]
 		}
 
 		if err := pw.Close(); err != nil {
-			loopErr = err
+			ch <- err
 			log.Println(err)
 			cancel()
 		}
 	}()
-	if loopErr != nil {
-		return 0, "", loopErr
+
+	select {
+	case err := <-ch:
+		if err != nil {
+			return 0, "", err
+		}
+		break
 	}
 
 	if w.OverWriteFileName() != nil {
