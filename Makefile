@@ -6,4 +6,5 @@ e2e:
 	cd ..
 
 test:
+	@go version && \
 	go test ./...
