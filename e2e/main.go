@@ -1,18 +1,15 @@
-package pipewriter
+package main
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"io"
+	"os"
 	"strconv"
-	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/maru44/pipewriter"
 )
-
-func testCtx() context.Context {
-	return context.WithValue(context.Background(), pipeWriterTestKey{}, true)
-}
 
 type (
 	testWriter struct{}
@@ -88,6 +85,17 @@ func (t *testWriter) OverWriteFileName() func(ctx context.Context, origin string
 }
 
 func (t *testWriter) Upload(ctx context.Context, dir, name string, file io.Reader) error {
+	f, err := os.OpenFile(dir+name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(file)
+	if _, err := f.Write(buf.Bytes()); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -103,45 +111,12 @@ func (t *testWriter) ValueRow(ctx context.Context, value *chara) []string {
 	return []string{value.name, strconv.Itoa(value.age), value.color}
 }
 
-func TestWrite(t *testing.T) {
-	ctx := testCtx()
+func main() {
+	ctx := context.Background()
 	w := &testWriter{}
 
-	tests := []struct {
-		name         string
-		page         *pg
-		wantCnt      int
-		wantFileName string
-		wantErr      error
-	}{
-		{
-			name: "OK",
-			page: &pg{
-				limit: 2,
-			},
-			wantCnt:      5,
-			wantFileName: "test.csv",
-		},
-		{
-			name:    "Err: at ListWithPagination",
-			wantErr: errors.New("no page"),
-		},
-	}
-
-	for _, tt := range tests {
-		tt := tt
-		t.Run(tt.name, func(t *testing.T) {
-			cnt, fileName, err := Write[chara, pg](ctx, "private", "test.csv", w, tt.page)
-
-			if tt.wantErr != nil {
-				assert.Error(t, err)
-				assert.Equal(t, tt.wantErr, err)
-				return
-			}
-
-			assert.NoError(t, err)
-			assert.Equal(t, tt.wantCnt, cnt)
-			assert.Equal(t, tt.wantFileName, fileName)
-		})
+	_, _, err := pipewriter.Write[chara, pg](ctx, "./", "test", w, &pg{limit: 1})
+	if err != nil {
+		panic(err)
 	}
 }
