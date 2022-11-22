@@ -6,6 +6,8 @@ import (
 )
 
 type (
+	pipeWriterTestKey struct{}
+
 	writer[T, P any] interface {
 		ListWithPagination(ctx context.Context, pagination *P) ([]*T, *P, bool, error)
 		OverWriteFileName() func(ctx context.Context, origin string) string
@@ -23,3 +25,14 @@ type (
 		HeaderRow(ctx context.Context) []string
 	}
 )
+
+func isTest(ctx context.Context) bool {
+	if ctx == nil {
+		return false
+	}
+	test, ok := ctx.Value(pipeWriterTestKey{}).(bool)
+	if ok {
+		return test
+	}
+	return false
+}

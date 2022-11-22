@@ -4,29 +4,15 @@ import (
 	"context"
 	"errors"
 	"io"
+	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-// type (
-// 	writer[T, P any] interface {
-// 		ListWithPagination(ctx context.Context, pagination *P) ([]*T, *P, bool, error)
-// 		OverWriteFileName() func(ctx context.Context, origin string) string
-// 		Upload(ctx context.Context, dir, name string, file io.Reader) error
-// 	}
-
-// 	PipeWriter[T, P any] interface {
-// 		writer[T, P]
-// 		Data(ctx context.Context, value *T) []byte
-// 	}
-
-// 	CsvWriter[T, P any] interface {
-// 		writer[T, P]
-// 		ValueRow(ctx context.Context, value *T) []string
-// 		HeaderRow(ctx context.Context) []string
-// 	}
-// )
+func testCtx() context.Context {
+	return context.WithValue(context.Background(), pipeWriterTestKey{}, true)
+}
 
 type (
 	testWriter struct{}
@@ -75,7 +61,26 @@ func (t *testWriter) ListWithPagination(ctx context.Context, page *pg) ([]*chara
 		return nil, nil, false, errors.New("no page")
 	}
 
-	return nil, nil, false, nil
+	np := &pg{
+		limit:  page.limit,
+		offset: page.offset,
+	}
+	if page.offset > len(charas) {
+		np.offset = 0
+		return nil, np, false, nil
+	}
+
+	end := page.offset + page.limit
+	next := true
+	if end > len(charas) {
+		end = len(charas)
+		next = false
+		np.offset = 0
+	} else {
+		np.offset += page.limit
+	}
+
+	return charas[page.offset:end], np, next, nil
 }
 
 func (t *testWriter) OverWriteFileName() func(ctx context.Context, origin string) string {
@@ -87,12 +92,19 @@ func (t *testWriter) Upload(ctx context.Context, dir, name string, file io.Reade
 }
 
 func (t *testWriter) Data(ctx context.Context, value *chara) []byte {
-	return []byte("")
+	return []byte(value.name)
+}
+
+func (t *testWriter) HeaderRow(ctx context.Context) []string {
+	return []string{"name", "age", "color"}
+}
+
+func (t *testWriter) ValueRow(ctx context.Context, value *chara) []string {
+	return []string{value.name, strconv.Itoa(value.age), value.color}
 }
 
 func TestWrite(t *testing.T) {
-	ctx := context.Background()
-
+	ctx := testCtx()
 	w := &testWriter{}
 
 	tests := []struct {
@@ -103,7 +115,15 @@ func TestWrite(t *testing.T) {
 		wantErr      error
 	}{
 		{
-			name:    "err in list",
+			name: "base",
+			page: &pg{
+				limit: 2,
+			},
+			wantCnt:      5,
+			wantFileName: "test.csv",
+		},
+		{
+			name:    "Err: at ListWithPagination",
 			wantErr: errors.New("no page"),
 		},
 	}
@@ -124,5 +144,4 @@ func TestWrite(t *testing.T) {
 			assert.Equal(t, tt.wantFileName, fileName)
 		})
 	}
-
 }

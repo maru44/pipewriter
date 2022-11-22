@@ -16,9 +16,9 @@ func Write[T, P any](ctx context.Context, dir, name string, w PipeWriter[T, P], 
 
 	var cnt int
 	ch := make(chan error)
+	testMode := isTest(ctx)
 	go func() {
-		hasNext := true
-		for hasNext {
+		for {
 			values, pg, next, err := w.ListWithPagination(ctx, page)
 			if err != nil {
 				ch <- err
@@ -29,20 +29,24 @@ func Write[T, P any](ctx context.Context, dir, name string, w PipeWriter[T, P], 
 				return
 			}
 
-			for _, v := range values {
-				if _, err := pw.Write(w.Data(ctx, v)); err != nil {
-					ch <- err
-					if err := pw.CloseWithError(err); err != nil {
-						log.Println(err)
-						cancel()
+			if !testMode {
+				for _, v := range values {
+					if _, err := pw.Write(w.Data(ctx, v)); err != nil {
+						ch <- err
+						if err := pw.CloseWithError(err); err != nil {
+							log.Println(err)
+							cancel()
+						}
+						return
 					}
-					return
 				}
 			}
 
-			page = pg
-			hasNext = next
 			cnt += len(values)
+			page = pg
+			if !next {
+				break
+			}
 		}
 
 		if err := pw.Close(); err != nil {
@@ -81,29 +85,33 @@ func WriteCSV[T, P any](ctx context.Context, dir, name string, w CsvWriter[T, P]
 
 	var cnt int
 	ch := make(chan error)
+	testMode := isTest(ctx)
 	go func() {
-		if _, err := pw.Write([]byte{0xEF, 0xBB, 0xBF}); err != nil {
-			ch <- err
-			if err := pw.CloseWithError(err); err != nil {
-				log.Println(err)
-				cancel()
+		if !testMode {
+			if _, err := pw.Write([]byte{0xEF, 0xBB, 0xBF}); err != nil {
+				ch <- err
+				if err := pw.CloseWithError(err); err != nil {
+					log.Println(err)
+					cancel()
+				}
+				return
 			}
-			return
 		}
 
 		cw := csv.NewWriter(pw)
-		if err := cw.Write(w.HeaderRow(ctx)); err != nil {
-			ch <- err
-			if err := pw.CloseWithError(err); err != nil {
-				log.Println(err)
-				cancel()
+		if !testMode {
+			if err := cw.Write(w.HeaderRow(ctx)); err != nil {
+				ch <- err
+				if err := pw.CloseWithError(err); err != nil {
+					log.Println(err)
+					cancel()
+				}
+				return
 			}
-			return
+			cw.Flush()
 		}
-		cw.Flush()
 
-		hasNext := true
-		for hasNext {
+		for {
 			values, pg, next, err := w.ListWithPagination(ctx, page)
 			if err != nil {
 				ch <- err
@@ -114,21 +122,25 @@ func WriteCSV[T, P any](ctx context.Context, dir, name string, w CsvWriter[T, P]
 				return
 			}
 
-			for _, v := range values {
-				if err := cw.Write(w.ValueRow(ctx, v)); err != nil {
-					ch <- err
-					if err := pw.CloseWithError(err); err != nil {
-						log.Println(err)
-						cancel()
+			if !testMode {
+				for _, v := range values {
+					if err := cw.Write(w.ValueRow(ctx, v)); err != nil {
+						ch <- err
+						if err := pw.CloseWithError(err); err != nil {
+							log.Println(err)
+							cancel()
+						}
+						return
 					}
-					return
 				}
 			}
 			cw.Flush()
 
 			page = pg
-			hasNext = next
 			cnt += len(values)
+			if !next {
+				break
+			}
 		}
 
 		if err := pw.Close(); err != nil {
@@ -136,6 +148,7 @@ func WriteCSV[T, P any](ctx context.Context, dir, name string, w CsvWriter[T, P]
 			log.Println(err)
 			cancel()
 		}
+		ch <- nil
 	}()
 
 	select {
