@@ -26,7 +26,7 @@ type (
 	}
 )
 
-var charas = []*chara{
+var rwby = []*chara{
 	{
 		name:  "Ruby",
 		age:   15,
@@ -48,7 +48,7 @@ var charas = []*chara{
 		color: "yellow",
 	},
 	{
-		name:  "penny",
+		name:  "Penny",
 		color: "light green",
 	},
 }
@@ -62,26 +62,28 @@ func (t *testWriter) ListWithPagination(ctx context.Context, page *pg) ([]*chara
 		limit:  page.limit,
 		offset: page.offset,
 	}
-	if page.offset > len(charas) {
+	if page.offset > len(rwby) {
 		np.offset = 0
 		return nil, np, false, nil
 	}
 
 	end := page.offset + page.limit
 	next := true
-	if end > len(charas) {
-		end = len(charas)
+	if end > len(rwby) {
+		end = len(rwby)
 		next = false
 		np.offset = 0
 	} else {
 		np.offset += page.limit
 	}
 
-	return charas[page.offset:end], np, next, nil
+	return rwby[page.offset:end], np, next, nil
 }
 
 func (t *testWriter) OverWriteFileName() func(ctx context.Context, origin string) string {
-	return nil
+	return func(ctx context.Context, origin string) string {
+		return "rwby" + origin
+	}
 }
 
 func (t *testWriter) Upload(ctx context.Context, dir, name string, file io.Reader) error {
@@ -116,6 +118,11 @@ func main() {
 	w := &testWriter{}
 
 	_, _, err := pipewriter.Write[chara, pg](ctx, "./", "test", w, &pg{limit: 1})
+	if err != nil {
+		panic(err)
+	}
+
+	_, _, err = pipewriter.WriteCSV[chara, pg](ctx, "./", "test.csv", w, &pg{limit: 3})
 	if err != nil {
 		panic(err)
 	}

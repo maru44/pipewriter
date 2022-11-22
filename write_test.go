@@ -51,7 +51,7 @@ var charas = []*chara{
 		color: "yellow",
 	},
 	{
-		name:  "penny",
+		name:  "Penny",
 		color: "light green",
 	},
 }
@@ -132,6 +132,49 @@ func TestWrite(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			cnt, fileName, err := Write[chara, pg](ctx, "private", "test.csv", w, tt.page)
+
+			if tt.wantErr != nil {
+				assert.Error(t, err)
+				assert.Equal(t, tt.wantErr, err)
+				return
+			}
+
+			assert.NoError(t, err)
+			assert.Equal(t, tt.wantCnt, cnt)
+			assert.Equal(t, tt.wantFileName, fileName)
+		})
+	}
+}
+
+func TestWriteCSV(t *testing.T) {
+	ctx := testCtx()
+	w := &testWriter{}
+
+	tests := []struct {
+		name         string
+		page         *pg
+		wantCnt      int
+		wantFileName string
+		wantErr      error
+	}{
+		{
+			name: "OK",
+			page: &pg{
+				limit: 2,
+			},
+			wantCnt:      5,
+			wantFileName: "test.csv",
+		},
+		{
+			name:    "Err: at ListWithPagination",
+			wantErr: errors.New("no page"),
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			cnt, fileName, err := WriteCSV[chara, pg](ctx, "private", "test.csv", w, tt.page)
 
 			if tt.wantErr != nil {
 				assert.Error(t, err)
