@@ -20,20 +20,29 @@ jobs:
         uses: golangci/golangci-lint-action@v3
       - name: Gen test file
         run: make testfile
-      - name: PR
+      - name: Create PR
         if: success()
-        uses: peter-evans/create-pull-request@v3
+        id: cpr
+        uses: peter-evans/create-pull-request@v4
         with:
-          token: ${{ secrets.GH_BOT_TOKEN }}
-          base: master
-          branch: testfile
-          delete-branch: true
-          commit-message: e2e test file is updated
-          title: e2e changed
-          body: |
-            Auto pushed by bot
+          token: ${{ secrets.PAT }}
+          # base: master
+          # branch: testfile
+          # delete-branch: true
+          # commit-message: e2e test file is updated
+          # title: e2e changed
+          # body: |
+          #   Auto pushed by bot
+      - name: Auto Merge PR
+        if: steps.cpr.outputs.pull-request-operation == 'created'
+        uses: peter-evans/enable-pull-request-automerge@v2
+        with:
+          token: ${{ secrets.PAT }}
+          pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
+          merge-method: squash
   ci:
     runs-on: ubuntu-latest
+    needs: prepare
     steps:
       - name: Cancel Previous Runs
         uses: styfle/cancel-workflow-action@0.7.0
