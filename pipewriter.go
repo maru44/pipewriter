@@ -9,7 +9,7 @@ type (
 	pipeWriterTestKey struct{}
 
 	Writer[T, P any] interface {
-		// ListWithPagination is method to load data.
+		// ListWithPagination is method to load data gradually.
 		ListWithPagination(ctx context.Context, pagination P) ([]T, P, bool, error)
 		// OverwriteFileName returns function to overwrite file name before Upload method.
 		// If this return nil, Upload method will be given the `name` argument given at Write or CsvWrite function.
