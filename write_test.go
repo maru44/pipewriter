@@ -17,7 +17,7 @@ func testCtx() context.Context {
 type (
 	testWriter struct{}
 
-	chara struct {
+	hunter struct {
 		name  string
 		age   int
 		color string
@@ -29,7 +29,7 @@ type (
 	}
 )
 
-var charas = []*chara{
+var charas = []*hunter{
 	{
 		name:  "Ruby",
 		age:   15,
@@ -56,7 +56,7 @@ var charas = []*chara{
 	},
 }
 
-func (t *testWriter) ListWithPagination(ctx context.Context, page *pg) ([]*chara, *pg, bool, error) {
+func (t *testWriter) ListWithPagination(ctx context.Context, page *pg) ([]*hunter, *pg, bool, error) {
 	if page == nil {
 		return nil, nil, false, errors.New("no page")
 	}
@@ -94,7 +94,7 @@ func (t *testWriter) Upload(ctx context.Context, dir, name string, file io.Reade
 	return nil
 }
 
-func (t *testWriter) Data(ctx context.Context, value *chara) []byte {
+func (t *testWriter) Data(ctx context.Context, value *hunter) []byte {
 	return []byte(value.name)
 }
 
@@ -102,7 +102,7 @@ func (t *testWriter) HeaderRow(ctx context.Context) []string {
 	return []string{"name", "age", "color"}
 }
 
-func (t *testWriter) ValueRow(ctx context.Context, value *chara) []string {
+func (t *testWriter) ValueRow(ctx context.Context, value *hunter) []string {
 	return []string{value.name, strconv.Itoa(value.age), value.color}
 }
 
@@ -143,7 +143,7 @@ func TestWrite(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			cnt, fileName, err := Write[*chara, *pg](ctx, "private", tt.fileName, w, tt.page)
+			cnt, fileName, err := Write[*hunter, *pg](ctx, "private", tt.fileName, w, tt.page)
 
 			if tt.wantErr != nil {
 				assert.Error(t, err)
@@ -195,7 +195,7 @@ func TestWriteCSV(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			cnt, fileName, err := WriteCSV[*chara, *pg](ctx, "private", tt.fileName, w, tt.page)
+			cnt, fileName, err := WriteCSV[*hunter, *pg](ctx, "private", tt.fileName, w, tt.page)
 
 			if tt.wantErr != nil {
 				assert.Error(t, err)

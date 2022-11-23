@@ -12,9 +12,9 @@ import (
 )
 
 type (
-	testWriter struct{}
+	repo struct{}
 
-	chara struct {
+	hunter struct {
 		name  string
 		age   int
 		color string
@@ -26,7 +26,7 @@ type (
 	}
 )
 
-var rwby = []*chara{
+var rwby = []*hunter{
 	{
 		name:  "Ruby",
 		age:   15,
@@ -53,7 +53,7 @@ var rwby = []*chara{
 	},
 }
 
-func (t *testWriter) ListWithPagination(ctx context.Context, page *pg) ([]*chara, *pg, bool, error) {
+func (t *repo) ListWithPagination(ctx context.Context, page *pg) ([]*hunter, *pg, bool, error) {
 	if page == nil {
 		return nil, nil, false, errors.New("no page")
 	}
@@ -80,13 +80,13 @@ func (t *testWriter) ListWithPagination(ctx context.Context, page *pg) ([]*chara
 	return rwby[page.offset:end], np, next, nil
 }
 
-func (t *testWriter) OverwriteFileName() func(ctx context.Context, origin string) string {
+func (t *repo) OverwriteFileName() func(ctx context.Context, origin string) string {
 	return func(ctx context.Context, origin string) string {
 		return "rwby" + origin
 	}
 }
 
-func (t *testWriter) Upload(ctx context.Context, dir, name string, file io.Reader) error {
+func (t *repo) Upload(ctx context.Context, dir, name string, file io.Reader) error {
 	f, err := os.OpenFile(dir+name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		panic(err)
@@ -103,28 +103,28 @@ func (t *testWriter) Upload(ctx context.Context, dir, name string, file io.Reade
 	return nil
 }
 
-func (t *testWriter) Data(ctx context.Context, value *chara) []byte {
+func (t *repo) Data(ctx context.Context, value *hunter) []byte {
 	return []byte(value.name)
 }
 
-func (t *testWriter) HeaderRow(ctx context.Context) []string {
+func (t *repo) HeaderRow(ctx context.Context) []string {
 	return []string{"name", "age", "color"}
 }
 
-func (t *testWriter) ValueRow(ctx context.Context, value *chara) []string {
+func (t *repo) ValueRow(ctx context.Context, value *hunter) []string {
 	return []string{value.name, strconv.Itoa(value.age), value.color}
 }
 
 func main() {
 	ctx := context.Background()
-	w := &testWriter{}
+	w := &repo{}
 
-	_, _, err := pipewriter.Write[*chara, *pg](ctx, "./", "test", w, &pg{limit: 1})
+	_, _, err := pipewriter.Write[*hunter, *pg](ctx, "./", "test", w, &pg{limit: 1})
 	if err != nil {
 		panic(err)
 	}
 
-	_, _, err = pipewriter.WriteCSV[*chara, *pg](ctx, "./", "test.csv", w, &pg{limit: 3})
+	_, _, err = pipewriter.WriteCSV[*hunter, *pg](ctx, "./", "test.csv", w, &pg{limit: 3})
 	if err != nil {
 		panic(err)
 	}
