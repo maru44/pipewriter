@@ -6,6 +6,8 @@
 
 You can read data and write file asynchronously using this package.
 
+Godoc is [here](https://pkg.go.dev/github.com/maru44/pipewriter).
+
 ## Usage
 
 You can load data and upload file asynchronously if you just create something sutisfying `pipewriter.PipeWriter` interface then call `pipewriter.Write`.
