@@ -9,7 +9,7 @@ import (
 )
 
 // Write is function to write file with loading data asynchronously.
-func Write[T, P any](ctx context.Context, dir, name string, w PipeWriter[T, P], page *P) (int, string, error) {
+func Write[T, P any](ctx context.Context, dir, name string, w PipeWriter[T, P], page P) (int, string, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
@@ -68,7 +68,7 @@ func Write[T, P any](ctx context.Context, dir, name string, w PipeWriter[T, P], 
 }
 
 // WriteCSV is function to write csv file with loading data asynchronously.
-func WriteCSV[T, P any](ctx context.Context, dir, name string, w CsvWriter[T, P], page *P) (int, string, error) {
+func WriteCSV[T, P any](ctx context.Context, dir, name string, w CsvWriter[T, P], page P) (int, string, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 

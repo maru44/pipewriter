@@ -131,7 +131,7 @@ func TestWrite(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			cnt, fileName, err := Write[chara, pg](ctx, "private", "test.csv", w, tt.page)
+			cnt, fileName, err := Write[*chara, *pg](ctx, "private", "test.csv", w, tt.page)
 
 			if tt.wantErr != nil {
 				assert.Error(t, err)
@@ -174,7 +174,7 @@ func TestWriteCSV(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			cnt, fileName, err := WriteCSV[chara, pg](ctx, "private", "test.csv", w, tt.page)
+			cnt, fileName, err := WriteCSV[*chara, *pg](ctx, "private", "test.csv", w, tt.page)
 
 			if tt.wantErr != nil {
 				assert.Error(t, err)

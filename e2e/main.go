@@ -119,12 +119,12 @@ func main() {
 	ctx := context.Background()
 	w := &testWriter{}
 
-	_, _, err := pipewriter.Write[chara, pg](ctx, "./", "test", w, &pg{limit: 1})
+	_, _, err := pipewriter.Write[*chara, *pg](ctx, "./", "test", w, &pg{limit: 1})
 	if err != nil {
 		panic(err)
 	}
 
-	_, _, err = pipewriter.WriteCSV[chara, pg](ctx, "./", "test.csv", w, &pg{limit: 3})
+	_, _, err = pipewriter.WriteCSV[*chara, *pg](ctx, "./", "test.csv", w, &pg{limit: 3})
 	if err != nil {
 		panic(err)
 	}

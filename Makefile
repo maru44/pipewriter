@@ -6,5 +6,4 @@ testfile:
 	cd ..
 
 test:
-	@go version && \
 	go test ./...

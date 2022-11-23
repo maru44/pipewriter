@@ -10,7 +10,7 @@ type (
 
 	writer[T, P any] interface {
 		// ListWithPagination is method to load data.
-		ListWithPagination(ctx context.Context, pagination *P) ([]*T, *P, bool, error)
+		ListWithPagination(ctx context.Context, pagination P) ([]T, P, bool, error)
 		// OverwriteFileName returns function to overwrite file name before Upload method.
 		// If this return nil, Upload method will be given the `name` argument given at Write or CsvWrite function.
 		OverwriteFileName() func(ctx context.Context, origin string) string
@@ -22,14 +22,14 @@ type (
 	PipeWriter[T, P any] interface {
 		writer[T, P]
 		// Data returns data to write file made by value typed T.
-		Data(ctx context.Context, value *T) []byte
+		Data(ctx context.Context, value T) []byte
 	}
 
 	// CsvWriter is writer interface for WriteCSV function.
 	CsvWriter[T, P any] interface {
 		writer[T, P]
 		// ValueRow returns csv row made by value typed T.
-		ValueRow(ctx context.Context, value *T) []string
+		ValueRow(ctx context.Context, value T) []string
 		// HeaderRow returns csv header.
 		HeaderRow(ctx context.Context) []string
 	}
