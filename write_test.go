@@ -88,6 +88,9 @@ func (t *testWriter) OverwriteFileName() func(ctx context.Context, origin string
 }
 
 func (t *testWriter) Upload(ctx context.Context, dir, name string, file io.Reader) error {
+	if name == "" {
+		return errors.New("blank file name")
+	}
 	return nil
 }
 
@@ -110,6 +113,7 @@ func TestWrite(t *testing.T) {
 	tests := []struct {
 		name         string
 		page         *pg
+		fileName     string
 		wantCnt      int
 		wantFileName string
 		wantErr      error
@@ -119,6 +123,7 @@ func TestWrite(t *testing.T) {
 			page: &pg{
 				limit: 2,
 			},
+			fileName:     "test.csv",
 			wantCnt:      5,
 			wantFileName: "test.csv",
 		},
@@ -126,12 +131,19 @@ func TestWrite(t *testing.T) {
 			name:    "Err: at ListWithPagination",
 			wantErr: errors.New("no page"),
 		},
+		{
+			name: "Err: at Upload",
+			page: &pg{
+				limit: 1,
+			},
+			wantErr: errors.New("blank file name"),
+		},
 	}
 
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			cnt, fileName, err := Write[*chara, *pg](ctx, "private", "test.csv", w, tt.page)
+			cnt, fileName, err := Write[*chara, *pg](ctx, "private", tt.fileName, w, tt.page)
 
 			if tt.wantErr != nil {
 				assert.Error(t, err)
@@ -153,6 +165,7 @@ func TestWriteCSV(t *testing.T) {
 	tests := []struct {
 		name         string
 		page         *pg
+		fileName     string
 		wantCnt      int
 		wantFileName string
 		wantErr      error
@@ -162,6 +175,7 @@ func TestWriteCSV(t *testing.T) {
 			page: &pg{
 				limit: 2,
 			},
+			fileName:     "test.csv",
 			wantCnt:      5,
 			wantFileName: "test.csv",
 		},
@@ -169,12 +183,19 @@ func TestWriteCSV(t *testing.T) {
 			name:    "Err: at ListWithPagination",
 			wantErr: errors.New("no page"),
 		},
+		{
+			name: "Err: at Upload",
+			page: &pg{
+				limit: 1,
+			},
+			wantErr: errors.New("blank file name"),
+		},
 	}
 
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			cnt, fileName, err := WriteCSV[*chara, *pg](ctx, "private", "test.csv", w, tt.page)
+			cnt, fileName, err := WriteCSV[*chara, *pg](ctx, "private", tt.fileName, w, tt.page)
 
 			if tt.wantErr != nil {
 				assert.Error(t, err)
