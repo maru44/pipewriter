@@ -38,7 +38,7 @@ var rwby = []*chara{
 		color: "white",
 	},
 	{
-		name:  "Break",
+		name:  "Blake",
 		age:   17,
 		color: "black",
 	},
