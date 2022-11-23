@@ -80,7 +80,7 @@ func (t *testWriter) ListWithPagination(ctx context.Context, page *pg) ([]*chara
 	return rwby[page.offset:end], np, next, nil
 }
 
-func (t *testWriter) OverWriteFileName() func(ctx context.Context, origin string) string {
+func (t *testWriter) OverwriteFileName() func(ctx context.Context, origin string) string {
 	return func(ctx context.Context, origin string) string {
 		return "rwby" + origin
 	}

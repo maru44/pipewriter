@@ -13,7 +13,7 @@ func TestContent(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	assert.Equal(t, "RubyWeissBreakYangPenny", string(data))
+	assert.Equal(t, "RubyWeissBlakeYangPenny", string(data))
 
 	f, err := os.Open("rwbytest.csv")
 	if err != nil {
@@ -24,7 +24,7 @@ func TestContent(t *testing.T) {
 		{"\ufeffname", "age", "color"},
 		{"Ruby", "15", "red"},
 		{"Weiss", "17", "white"},
-		{"Break", "17", "black"},
+		{"Blake", "17", "black"},
 		{"Yang", "17", "yellow"},
 		{"Penny", "0", "light green"},
 	}

@@ -41,7 +41,7 @@ var charas = []*chara{
 		color: "white",
 	},
 	{
-		name:  "Break",
+		name:  "Blake",
 		age:   17,
 		color: "black",
 	},
@@ -83,7 +83,7 @@ func (t *testWriter) ListWithPagination(ctx context.Context, page *pg) ([]*chara
 	return charas[page.offset:end], np, next, nil
 }
 
-func (t *testWriter) OverWriteFileName() func(ctx context.Context, origin string) string {
+func (t *testWriter) OverwriteFileName() func(ctx context.Context, origin string) string {
 	return nil
 }
 

@@ -8,12 +8,13 @@ import (
 	"time"
 )
 
+// Write is function to write file with loading data asynchronously.
 func Write[T, P any](ctx context.Context, dir, name string, w PipeWriter[T, P], page *P) (int, string, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	if w.OverWriteFileName() != nil {
-		name = w.OverWriteFileName()(ctx, name)
+	if w.OverwriteFileName() != nil {
+		name = w.OverwriteFileName()(ctx, name)
 	}
 
 	pr, pw := io.Pipe()
@@ -66,12 +67,13 @@ func Write[T, P any](ctx context.Context, dir, name string, w PipeWriter[T, P], 
 	return cnt, name, nil
 }
 
+// WriteCSV is function to write csv file with loading data asynchronously.
 func WriteCSV[T, P any](ctx context.Context, dir, name string, w CsvWriter[T, P], page *P) (int, string, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	if w.OverWriteFileName() != nil {
-		name = w.OverWriteFileName()(ctx, name)
+	if w.OverwriteFileName() != nil {
+		name = w.OverwriteFileName()(ctx, name)
 	}
 
 	pr, pw := io.Pipe()
