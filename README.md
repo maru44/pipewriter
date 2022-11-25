@@ -7,6 +7,9 @@
 PipeWriter connect upload method and list method with io.pipe.
 You can execute asynchronously closed method to upload data including io.Writer and closed method to list.
 
+This package will be useful in products sutisfy separation of concerns.
+If the product does not sutisfy it, it is better to use `io.pipe` directly.
+
 Godoc is [here](https://pkg.go.dev/github.com/maru44/pipewriter).
 
 ## Usage
