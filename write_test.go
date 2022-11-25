@@ -139,6 +139,10 @@ func TestWrite(t *testing.T) {
 			},
 			wantErr: errors.New("blank file name"),
 		},
+		{
+			name:    "Err: at Upload (test for asynchronous)",
+			wantErr: errors.New("blank file name"),
+		},
 	}
 
 	for _, tt := range tests {
@@ -190,6 +194,10 @@ func TestWriteCSV(t *testing.T) {
 			page: &pg{
 				limit: 1,
 			},
+			wantErr: errors.New("blank file name"),
+		},
+		{
+			name:    "Err: at Upload (test for asynchronous)",
 			wantErr: errors.New("blank file name"),
 		},
 	}
