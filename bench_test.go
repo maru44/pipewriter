@@ -13,7 +13,23 @@ import (
 )
 
 type (
-	repo struct{}
+	repo struct {
+		iPersonRepo
+		iUploadRepo
+	}
+
+	personRepo struct{}
+	uploadRepo struct{}
+
+	iPersonRepo interface {
+		ListWithPagination(ctx context.Context, page int) ([]*person, int, bool, error)
+		Data(ctx context.Context, value *person) []byte
+		OverwriteFileName() func(ctx context.Context, origin string) string
+	}
+
+	iUploadRepo interface {
+		Upload(ctx context.Context, dir, name string, file io.Reader) error
+	}
 
 	person struct {
 		Firstname string `json:"first name"`
@@ -56,7 +72,7 @@ func (p *person) String() string {
 	return p.Firstname + p.Lastname + p.Email
 }
 
-func (r *repo) ListWithPagination(ctx context.Context, page int) ([]*person, int, bool, error) {
+func (r *personRepo) ListWithPagination(ctx context.Context, page int) ([]*person, int, bool, error) {
 	if page > 8 {
 		return nil, 0, false, nil
 	}
@@ -71,11 +87,15 @@ func (r *repo) ListWithPagination(ctx context.Context, page int) ([]*person, int
 	return out, np, true, nil
 }
 
-func (r *repo) OverwriteFileName() func(ctx context.Context, origin string) string {
+func (r *personRepo) Data(ctx context.Context, value *person) []byte {
+	return []byte(value.Firstname + value.Lastname + value.Email)
+}
+
+func (r *personRepo) OverwriteFileName() func(ctx context.Context, origin string) string {
 	return nil
 }
 
-func (r *repo) Upload(ctx context.Context, dir, name string, file io.Reader) error {
+func (r *uploadRepo) Upload(ctx context.Context, dir, name string, file io.Reader) error {
 	f, err := os.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return err
@@ -88,12 +108,11 @@ func (r *repo) Upload(ctx context.Context, dir, name string, file io.Reader) err
 	return nil
 }
 
-func (r *repo) Data(ctx context.Context, value *person) []byte {
-	return []byte(value.Firstname + value.Lastname + value.Email)
-}
-
 func BenchmarkWithPipe(b *testing.B) {
-	repo := &repo{}
+	repo := &repo{
+		iPersonRepo: &personRepo{},
+		iUploadRepo: &uploadRepo{},
+	}
 
 	if _, _, err := Write[*person, int](context.Background(), "", "bench_w_pipe", repo, 0); err != nil {
 		b.Fatal(err)
@@ -101,7 +120,10 @@ func BenchmarkWithPipe(b *testing.B) {
 }
 
 func BenchmarkWithoutPipe(b *testing.B) {
-	repo := &repo{}
+	repo := &repo{
+		iPersonRepo: &personRepo{},
+		iUploadRepo: &uploadRepo{},
+	}
 
 	ctx := context.Background()
 	var page int
