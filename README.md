@@ -12,6 +12,22 @@ If the product does not sutisfy it, it is better to use `io.pipe` directly.
 
 Godoc is [here](https://pkg.go.dev/github.com/maru44/pipewriter).
 
+## Benchmark
+
+```shell
+go test -bench . -benchmem
+```
+
+```
+goos: darwin
+goarch: arm64
+pkg: github.com/maru44/pipewriter
+BenchmarkWithPipe-8             1000000000               0.7982 ns/op          0 B/op          0 allocs/op
+BenchmarkWithoutPipe-8                 1        15894289209 ns/op       97416200664 B/op          562042 allocs/op
+PASS
+ok      github.com/maru44/pipewriter    44.063s
+```
+
 ## Usage
 
 You have to sutisfy `pipewriter.PipeWriter` interface then call `pipewriter.Write`.
