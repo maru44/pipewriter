@@ -5,7 +5,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/maru44/pipewriter)](https://goreportcard.com/report/github.com/maru44/pipewriter)
 
 PipeWriter connect upload method and list method with io.pipe.
-You can execute asynchronously closed method to upload data including io.Writer in it and closed method to list.
+You can execute asynchronously closed method to upload data including io.Writer and closed method to list.
 
 Godoc is [here](https://pkg.go.dev/github.com/maru44/pipewriter).
 
