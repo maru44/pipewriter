@@ -82,7 +82,6 @@ func (r *personRepo) ListWithPagination(ctx context.Context, page int) ([]*perso
 	if err != nil {
 		return nil, 0, false, nil
 	}
-
 	np := page + 1
 	return out, np, true, nil
 }
