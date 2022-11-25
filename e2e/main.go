@@ -98,12 +98,6 @@ func (r *repo) ValueRow(ctx context.Context, value *hunter) []string {
 	return []string{value.name, strconv.Itoa(value.age), value.color}
 }
 
-func (r *repo) OverwriteFileName() func(ctx context.Context, origin string) string {
-	return func(ctx context.Context, origin string) string {
-		return "rwby" + origin
-	}
-}
-
 func (r *repo) Upload(ctx context.Context, dir, name string, file io.Reader) error {
 	f, err := os.OpenFile(dir+name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
@@ -127,12 +121,12 @@ func main() {
 		hunter: &hunterRepo{},
 	}
 
-	_, _, err := pipewriter.Write[*hunter, *pg](ctx, "./", "test", w, &pg{limit: 1})
+	_, _, err := pipewriter.Write[*hunter, *pg](ctx, "./", "rwbytest", w, &pg{limit: 1})
 	if err != nil {
 		panic(err)
 	}
 
-	_, _, err = pipewriter.WriteCSV[*hunter, *pg](ctx, "./", "test.csv", w, &pg{limit: 3})
+	_, _, err = pipewriter.WriteCSV[*hunter, *pg](ctx, "./", "rwbytest.csv", w, &pg{limit: 3})
 	if err != nil {
 		panic(err)
 	}

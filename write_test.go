@@ -83,10 +83,6 @@ func (t *testWriter) ListWithPagination(ctx context.Context, page *pg) ([]*hunte
 	return charas[page.offset:end], np, next, nil
 }
 
-func (t *testWriter) OverwriteFileName() func(ctx context.Context, origin string) string {
-	return nil
-}
-
 func (t *testWriter) Upload(ctx context.Context, dir, name string, file io.Reader) error {
 	if name == "" {
 		return errors.New("blank file name")

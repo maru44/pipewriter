@@ -112,10 +112,6 @@ func (r *UploadRepo) Upload(ctx context.Context, dir, name string, file io.Reade
 	return r.Bucket.Upload(ctx, dir, name, file)
 }
 
-func (r *UploadRepo) OverwriteFileName() func(ctx context.Context, origin string) string {
-	return nil
-}
-
 func (r *UploadRepo) Data(ctx context.Context, value *model.User) []byte {
 	return []byte(value.String())
 }

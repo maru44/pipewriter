@@ -13,10 +13,6 @@ func Write[T, P any](ctx context.Context, dir, name string, w PipeWriter[T, P], 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	if w.OverwriteFileName() != nil {
-		name = w.OverwriteFileName()(ctx, name)
-	}
-
 	pr, pw := io.Pipe()
 	defer pw.Close()
 
@@ -71,10 +67,6 @@ func Write[T, P any](ctx context.Context, dir, name string, w PipeWriter[T, P], 
 func WriteCSV[T, P any](ctx context.Context, dir, name string, w CsvWriter[T, P], page P) (int, string, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
-
-	if w.OverwriteFileName() != nil {
-		name = w.OverwriteFileName()(ctx, name)
-	}
 
 	pr, pw := io.Pipe()
 	defer pw.Close()

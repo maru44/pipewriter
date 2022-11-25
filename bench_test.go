@@ -24,7 +24,6 @@ type (
 	iPersonRepo interface {
 		ListWithPagination(ctx context.Context, page int) ([]*person, int, bool, error)
 		Data(ctx context.Context, value *person) []byte
-		OverwriteFileName() func(ctx context.Context, origin string) string
 	}
 
 	iUploadRepo interface {
@@ -86,10 +85,6 @@ func (r *personRepo) ListWithPagination(ctx context.Context, page int) ([]*perso
 
 func (r *personRepo) Data(ctx context.Context, value *person) []byte {
 	return []byte(value.Firstname + value.Lastname + value.Email)
-}
-
-func (r *personRepo) OverwriteFileName() func(ctx context.Context, origin string) string {
-	return nil
 }
 
 func (r *uploadRepo) Upload(ctx context.Context, dir, name string, file io.Reader) error {
