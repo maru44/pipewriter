@@ -38,8 +38,6 @@ type (
 		Age       string
 		CreatedAt string
 	}
-
-	persons []*person
 )
 
 const baseURL = "https://maru44.github.io/maru44/pipewriter"
