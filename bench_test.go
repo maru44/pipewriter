@@ -95,7 +95,7 @@ func (r *repo) Data(ctx context.Context, value *person) []byte {
 func BenchmarkWithPipe(b *testing.B) {
 	repo := &repo{}
 
-	if _, _, err := Write[*person, int](context.Background(), "", "bench_w_pipewriter", repo, 0); err != nil {
+	if _, _, err := Write[*person, int](context.Background(), "", "bench_w_pipe", repo, 0); err != nil {
 		b.Fatal(err)
 	}
 }
@@ -119,7 +119,7 @@ func BenchmarkWithoutPipe(b *testing.B) {
 		}
 		page = p
 	}
-	if err := repo.Upload(ctx, "", "bench_wo_pipewriter", bytes.NewReader([]byte(out))); err != nil {
+	if err := repo.Upload(ctx, "", "bench_wo_pipe", bytes.NewReader([]byte(out))); err != nil {
 		b.Fatal(err)
 	}
 }

@@ -14,7 +14,5 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
-**/bench_wo_pipewriter.csv
-**/bench_w_pipewriter.csv
-**/bench_wo_pipewriter
-**/bench_w_pipewriter
+**/bench_wo_pipe
+**/bench_w_pipe
