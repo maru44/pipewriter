@@ -117,7 +117,7 @@ func (r *UploadRepo) OverwriteFileName() func(ctx context.Context, origin string
 }
 
 func (r *UploadRepo) Data(ctx context.Context, value *model.User) []byte {
-	return []byte(value.String)
+	return []byte(value.String())
 }
 
 ```
