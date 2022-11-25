@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"io"
@@ -93,11 +92,7 @@ func (t *repo) Upload(ctx context.Context, dir, name string, file io.Reader) err
 	}
 	defer f.Close()
 
-	buf := new(bytes.Buffer)
-	if _, err := buf.ReadFrom(file); err != nil {
-		return err
-	}
-	if _, err := f.Write(buf.Bytes()); err != nil {
+	if _, err := io.Copy(f, file); err != nil {
 		return err
 	}
 	return nil

@@ -128,8 +128,9 @@ func TestWrite(t *testing.T) {
 			wantFileName: "test.csv",
 		},
 		{
-			name:    "Err: at ListWithPagination",
-			wantErr: errors.New("no page"),
+			name:     "Err: at ListWithPagination",
+			fileName: "test.csv",
+			wantErr:  errors.New("no page"),
 		},
 		{
 			name: "Err: at Upload",
@@ -180,8 +181,9 @@ func TestWriteCSV(t *testing.T) {
 			wantFileName: "test.csv",
 		},
 		{
-			name:    "Err: at ListWithPagination",
-			wantErr: errors.New("no page"),
+			name:     "Err: at ListWithPagination",
+			fileName: "test.csv",
+			wantErr:  errors.New("no page"),
 		},
 		{
 			name: "Err: at Upload",

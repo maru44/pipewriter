@@ -56,11 +56,11 @@ func Write[T, P any](ctx context.Context, dir, name string, w PipeWriter[T, P], 
 		close(ch)
 	}()
 
-	for err := range ch {
+	if err := w.Upload(ctx, dir, name, pr); err != nil {
 		return 0, "", err
 	}
 
-	if err := w.Upload(ctx, dir, name, pr); err != nil {
+	for err := range ch {
 		return 0, "", err
 	}
 
@@ -130,11 +130,11 @@ func WriteCSV[T, P any](ctx context.Context, dir, name string, w CsvWriter[T, P]
 		close(ch)
 	}()
 
-	for err := range ch {
+	if err := w.Upload(ctx, dir, name, pr); err != nil {
 		return 0, "", err
 	}
 
-	if err := w.Upload(ctx, dir, name, pr); err != nil {
+	for err := range ch {
 		return 0, "", err
 	}
 
